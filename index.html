@@ -1,0 +1,847 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Secure Registration & Login</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .form-container {
+            padding: 30px;
+            transition: all 0.3s ease;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #2c3e50;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        input:focus, select:focus {
+            border-color: #3498db;
+            outline: none;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            margin-top: 10px;
+        }
+
+        .radio-option {
+            display: flex;
+            align-items: center;
+        }
+
+        .radio-option input {
+            width: auto;
+            margin-right: 8px;
+        }
+
+        .btn {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: background-color 0.3s;
+        }
+
+        .btn:hover {
+            background-color: #2980b9;
+        }
+
+        .switch-form {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .switch-form a {
+            color: #3498db;
+            text-decoration: none;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .switch-form a:hover {
+            text-decoration: underline;
+        }
+
+        .face-scanner {
+            border: 2px dashed #3498db;
+            border-radius: 5px;
+            padding: 20px;
+            text-align: center;
+            margin-bottom: 20px;
+            background-color: #f8f9fa;
+        }
+
+        .face-scanner video {
+            width: 100%;
+            max-width: 300px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+
+        .face-scanner canvas {
+            display: none;
+        }
+
+        .recaptcha {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .recaptcha input {
+            width: auto;
+            margin-right: 10px;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .website-content {
+            padding: 30px;
+            text-align: center;
+        }
+
+        .website-content h2 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+
+        .website-content p {
+            font-size: 18px;
+            line-height: 1.6;
+        }
+
+        .logout-btn {
+            background-color: #e74c3c;
+            margin-top: 20px;
+        }
+
+        .logout-btn:hover {
+            background-color: #c0392b;
+        }
+
+        .forgot-password {
+            text-align: right;
+            margin-top: -15px;
+            margin-bottom: 20px;
+        }
+
+        .forgot-password a {
+            color: #3498db;
+            text-decoration: none;
+            font-size: 14px;
+            cursor: pointer;
+        }
+
+        .forgot-password a:hover {
+            text-decoration: underline;
+        }
+
+        .passkey-message {
+            font-size: 14px;
+            color: #7f8c8d;
+            margin-top: 5px;
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .success-message {
+            color: #2ecc71;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Registration Form -->
+        <div class="form-container" id="registration-form">
+            <h1>Create Your Account</h1>
+            
+            <div class="form-group">
+                <label for="reg-name">Full Name</label>
+                <input type="text" id="reg-name" placeholder="Enter your full name" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="reg-email">Email Address</label>
+                <input type="email" id="reg-email" placeholder="Enter your email" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="reg-phone">Phone Number</label>
+                <div style="display: flex;">
+                    <select id="reg-country-code" style="width: 30%; margin-right: 10px;">
+                        <!-- Country codes will be populated by JavaScript -->
+                    </select>
+                    <input type="tel" id="reg-phone" placeholder="Enter your phone number" style="width: 70%;" required>
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label for="reg-password">Password</label>
+                <input type="password" id="reg-password" placeholder="Create a password" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="reg-confirm-password">Confirm Password</label>
+                <input type="password" id="reg-confirm-password" placeholder="Confirm your password" required>
+                <div class="error-message" id="password-match-error">Passwords do not match</div>
+            </div>
+            
+            <div class="form-group">
+                <label>Birthday</label>
+                <input type="date" id="reg-birthday" required>
+            </div>
+            
+            <div class="form-group">
+                <label>Gender</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="reg-gender-male" name="gender" value="male" checked>
+                        <label for="reg-gender-male">Male</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="reg-gender-female" name="gender" value="female">
+                        <label for="reg-gender-female">Female</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="reg-gender-other" name="gender" value="other">
+                        <label for="reg-gender-other">Other</label>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="form-group face-scanner">
+                <h3>Face Recognition</h3>
+                <p>Please allow camera access and look directly at your camera</p>
+                <video id="face-video" autoplay playsinline></video>
+                <canvas id="face-canvas"></canvas>
+                <button id="capture-face" class="btn">Capture Face</button>
+                <div class="error-message" id="face-error">Face capture is required</div>
+                <div class="success-message" id="face-success">Face captured successfully!</div>
+            </div>
+            
+            <div class="form-group recaptcha">
+                <h3>Security Check</h3>
+                <p>Please verify you're not a robot</p>
+                <div>
+                    <input type="checkbox" id="recaptcha-check">
+                    <label for="recaptcha-check">I'm not a robot</label>
+                </div>
+                <div class="error-message" id="recaptcha-error">Please complete the security check</div>
+            </div>
+            
+            <button id="register-btn" class="btn">Register</button>
+            
+            <div class="switch-form">
+                Already have an account? <a id="show-login">Log in</a>
+            </div>
+        </div>
+        
+        <!-- Login Form -->
+        <div class="form-container hidden" id="login-form">
+            <h1>Welcome Back</h1>
+            
+            <div class="form-group">
+                <label for="login-email">Email or Phone</label>
+                <input type="text" id="login-email" placeholder="Enter your email or phone" required>
+            </div>
+            
+            <div class="form-group">
+                <label for="login-password">Password</label>
+                <input type="password" id="login-password" placeholder="Enter your password" required>
+                <div class="forgot-password">
+                    <a id="forgot-password">Forgot password?</a>
+                </div>
+            </div>
+            
+            <div class="form-group face-scanner hidden" id="login-face-scanner">
+                <h3>Face Verification</h3>
+                <p>Please verify your identity with face recognition</p>
+                <video id="login-face-video" autoplay playsinline></video>
+                <canvas id="login-face-canvas"></canvas>
+                <button id="capture-login-face" class="btn">Verify Face</button>
+                <div class="error-message" id="login-face-error">Face verification failed</div>
+            </div>
+            
+            <div class="form-group hidden" id="passkey-group">
+                <label for="login-passkey">Passkey</label>
+                <input type="text" id="login-passkey" placeholder="Enter your passkey" required>
+                <div class="passkey-message">Check your email/SMS for the passkey</div>
+                <div class="error-message" id="passkey-error">Invalid passkey</div>
+            </div>
+            
+            <button id="login-btn" class="btn">Log In</button>
+            
+            <div class="switch-form">
+                Don't have an account? <a id="show-register">Register</a>
+            </div>
+        </div>
+        
+        <!-- Forgot Password Form -->
+        <div class="form-container hidden" id="forgot-password-form">
+            <h1>Reset Your Password</h1>
+            
+            <div class="form-group">
+                <label for="reset-email">Email or Phone</label>
+                <input type="text" id="reset-email" placeholder="Enter your email or phone" required>
+            </div>
+            
+            <div class="form-group face-scanner">
+                <h3>Face Verification</h3>
+                <p>Please verify your identity with face recognition</p>
+                <video id="reset-face-video" autoplay playsinline></video>
+                <canvas id="reset-face-canvas"></canvas>
+                <button id="capture-reset-face" class="btn">Verify Face</button>
+                <div class="error-message" id="reset-face-error">Face verification required</div>
+            </div>
+            
+            <div class="form-group hidden" id="new-password-group">
+                <label for="new-password">New Password</label>
+                <input type="password" id="new-password" placeholder="Enter new password" required>
+                
+                <label for="confirm-new-password" style="margin-top: 15px;">Confirm New Password</label>
+                <input type="password" id="confirm-new-password" placeholder="Confirm new password" required>
+                <div class="error-message" id="reset-password-match-error">Passwords do not match</div>
+            </div>
+            
+            <button id="reset-password-btn" class="btn">Reset Password</button>
+            <button id="cancel-reset" class="btn" style="background-color: #95a5a6; margin-top: 10px;">Cancel</button>
+            
+            <div class="success-message hidden" id="reset-success">Password reset successfully! You can now login with your new password.</div>
+        </div>
+        
+        <!-- Website Content (Shown after login) -->
+        <div class="website-content hidden" id="website-content">
+            <h2>Welcome to Your Secure Dashboard</h2>
+            <p>You have successfully logged in to your account. This is your secure area where you can manage your profile and settings.</p>
+            <p>Your security is our top priority. We use advanced face recognition and multi-factor authentication to keep your account safe.</p>
+            <button id="logout-btn" class="btn logout-btn">Log Out</button>
+        </div>
+    </div>
+    <script>
+// Database simulation (in a real app, this would be server-side)
+const userDatabase = [];
+let currentUser = true;
+let faceData = true;
+let loginFaceData = true;
+let resetFaceData = true;
+let passkey = true;
+let passkeyExpiry = true;
+
+// Initialize the app when DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Populate country codes dropdown
+    const countryCodeSelect = document.getElementById('reg-country-code');
+    const countryCodes = [
+        { code: '+256', name: 'Uganda (+256)' },
+        { code: '+1', name: 'United States (+1)' },
+        { code: '+44', name: 'United Kingdom (+44)' },
+        // Add more countries as needed...
+    ];
+    
+    countryCodes.forEach(country => {
+        const option = document.createElement('option');
+        option.value = country.code;
+        option.textContent = country.name;
+        countryCodeSelect.appendChild(option);
+    });
+
+    // Set default country to Uganda
+    countryCodeSelect.value = '+256';
+
+    // Check login status
+    checkLoginStatus();
+
+    // Event listeners for form switching
+    document.getElementById('show-login').addEventListener('click', showLoginForm);
+    document.getElementById('show-register').addEventListener('click', showRegistrationForm);
+    document.getElementById('forgot-password').addEventListener('click', showForgotPasswordForm);
+    document.getElementById('cancel-reset').addEventListener('click', showLoginForm);
+
+    // Password validation
+    document.getElementById('reg-confirm-password').addEventListener('input', validatePasswordMatch);
+    document.getElementById('confirm-new-password').addEventListener('input', validateResetPasswordMatch);
+
+    // Form submissions
+    document.getElementById('register-btn').addEventListener('click', registerUser);
+    document.getElementById('login-btn').addEventListener('click', loginUser);
+    document.getElementById('reset-password-btn').addEventListener('click', resetPassword);
+    document.getElementById('logout-btn').addEventListener('click', logoutUser);
+
+    // Face capture buttons
+    document.getElementById('capture-face').addEventListener('click', captureRegistrationFace);
+    document.getElementById('capture-login-face').addEventListener('click', captureLoginFace);
+    document.getElementById('capture-reset-face').addEventListener('click', captureResetFace);
+
+    // Passkey verification
+    document.getElementById('login-passkey').addEventListener('keyup', function(e) {
+        if (e.key === 'Enter') verifyPasskey();
+    });
+
+    // Initialize face scanners when forms are shown
+    document.getElementById('registration-form').addEventListener('mouseenter', startRegistrationFaceScanner);
+    document.getElementById('login-form').addEventListener('mouseenter', startLoginFaceScanner);
+    document.getElementById('forgot-password-form').addEventListener('mouseenter', startResetFaceScanner);
+});
+
+// ======================
+// MAIN FUNCTIONS
+// ======================
+
+function checkLoginStatus() {
+    const lastLogin = localStorage.getItem('lastLogin');
+    const oneMonthInMs = 30 * 24 * 60 * 60 * 1000; // 1 month in milliseconds
+    
+    if (lastLogin && (Date.now() - parseInt(lastLogin)) < oneMonthInMs) {
+        currentUser = JSON.parse(localStorage.getItem('currentUser'));
+        showWebsiteContent();
+    } else {
+        if (lastLogin) {
+            localStorage.removeItem('lastLogin');
+            localStorage.removeItem('currentUser');
+        }
+        showLoginForm();
+    }
+}
+
+function registerUser() {
+    
+    if (!validateRegistrationForm()) return;
+    
+    const user = {
+        name: document.getElementById('reg-name').value,
+        email: document.getElementById('reg-email').value,
+        phone: document.getElementById('reg-country-code').value + document.getElementById('reg-phone').value,
+        password: document.getElementById('reg-password').value,
+        birthday: document.getElementById('reg-birthday').value,
+        gender: document.querySelector('input[name="gender"]:checked').value,
+        faceData: faceData,
+        lastLogin: new Date().toISOString(),
+        createdAt: new Date().toISOString()
+    };
+    
+    userDatabase.push(user);
+    currentUser = user;
+    localStorage.setItem('currentUser', JSON.stringify(user));
+    localStorage.setItem('lastLogin', Date.now().toString());
+    
+    showWebsiteContent();
+}
+
+function loginUser(e) {
+    e.preventDefault();
+    
+    const loginEmail = document.getElementById('login-email').value;
+    const loginPassword = document.getElementById('login-password').value;
+    
+    const user = userDatabase.find(u => 
+        u.email === loginEmail || u.phone === loginEmail
+    );
+    
+    if (!user || user.password !== loginPassword) {
+        alert('Invalid credentials');
+        return;
+    }
+    
+    if (!hasFaceRecognition()) {
+        sendPasskey(user);
+        document.getElementById('passkey-group').classList.remove('hidden');
+        document.getElementById('login-face-scanner').classList.add('hidden');
+        return;
+    }
+    
+    document.getElementById('login-face-scanner').classList.remove('hidden');
+    startLoginFaceScanner();
+}
+
+function resetPassword(e) {
+    e.preventDefault();
+    
+    const resetEmail = document.getElementById('reset-email').value;
+    const user = userDatabase.find(u => 
+        u.email === resetEmail || u.phone === resetEmail
+    );
+    
+    if (!user) {
+        alert('User not found');
+        return;
+    }
+    
+    if (!resetFaceData) {
+        document.getElementById('reset-face-error').style.display = 'block';
+        return;
+    }
+    
+    if (!compareFaces(user.faceData, resetFaceData)) {
+        document.getElementById('reset-face-error').textContent = 'Face verification failed';
+        document.getElementById('reset-face-error').style.display = 'block';
+        return;
+    }
+    
+    if (document.getElementById('new-password').value !== 
+        document.getElementById('confirm-new-password').value) {
+        document.getElementById('reset-password-match-error').style.display = 'block';
+        return;
+    }
+    
+    user.password = document.getElementById('new-password').value;
+    document.getElementById('reset-success').classList.remove('hidden');
+    
+    setTimeout(() => {
+        showLoginForm();
+    }, 3000);
+}
+
+// ======================
+// HELPER FUNCTIONS
+// ======================
+
+function validateRegistrationForm() {
+    // Check required fields
+    const requiredFields = [
+        'reg-name', 'reg-email', 'reg-phone', 
+        'reg-password', 'reg-confirm-password', 'reg-birthday'
+    ];
+    
+    for (const fieldId of requiredFields) {
+        if (!document.getElementById(fieldId).value) {
+            alert('Please fill in all required fields');
+            return false;
+        }
+    }
+    
+    // Check password match
+    if (document.getElementById('reg-password').value !== 
+        document.getElementById('reg-confirm-password').value) {
+        document.getElementById('password-match-error').style.display = 'block';
+        return false;
+    }
+    
+    // Check face capture
+    if (!faceData) {
+        document.getElementById('face-error').style.display = 'block';
+        return false;
+    }
+    
+    // Check recaptcha
+    if (!document.getElementById('recaptcha-check').checked) {
+        document.getElementById('recaptcha-error').style.display = 'block';
+        return false;
+    }
+    
+    return true;
+}
+
+function validatePasswordMatch() {
+    const password = document.getElementById('reg-password').value;
+    const confirmPassword = document.getElementById('reg-confirm-password').value;
+    
+    if (password !== confirmPassword && confirmPassword !== '') {
+        document.getElementById('password-match-error').style.display = 'block';
+    } else {
+        document.getElementById('password-match-error').style.display = 'none';
+    }
+}
+
+function validateResetPasswordMatch() {
+    const newPassword = document.getElementById('new-password').value;
+    const confirmNewPassword = document.getElementById('confirm-new-password').value;
+    
+    if (newPassword !== confirmNewPassword && confirmNewPassword !== '') {
+        document.getElementById('reset-password-match-error').style.display = 'block';
+    } else {
+        document.getElementById('reset-password-match-error').style.display = 'none';
+    }
+}
+
+// ======================
+// FACE RECOGNITION FUNCTIONS
+// ======================
+
+function startFaceScanner(videoElement) {
+    if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+            .then(stream => {
+                videoElement.srcObject = stream;
+            })
+            .catch(error => {
+                console.error("Camera error:", error);
+                alert("Could not access camera. Please enable permissions.");
+            });
+    } else {
+        alert("Your device doesn't support camera access");
+    }
+}
+
+function stopFaceScanner(videoElement) {
+    if (videoElement.srcObject) {
+        videoElement.srcObject.getTracks().forEach(track => track.stop());
+        videoElement.srcObject = null;
+    }
+}
+
+function captureFace(videoElement, canvasElement) {
+    const context = canvasElement.getContext('2d');
+    canvasElement.width = videoElement.videoWidth;
+    canvasElement.height = videoElement.videoHeight;
+    context.drawImage(videoElement, 0, 0, canvasElement.width, canvasElement.height);
+    return canvasElement.toDataURL('image/png');
+}
+
+function compareFaces(face1, face2) {
+    // In a real app, this would use proper face recognition
+    // For demo purposes, we'll just do a simple comparison
+    return face1 && face2 && face1 === face2;
+}
+
+function captureRegistrationFace() {
+    faceData = captureFace(
+        document.getElementById('face-video'), 
+        document.getElementById('face-canvas')
+    );
+    document.getElementById('face-error').style.display = 'none';
+    document.getElementById('face-success').style.display = 'block';
+}
+
+function captureLoginFace() {
+    loginFaceData = captureFace(
+        document.getElementById('login-face-video'), 
+        document.getElementById('login-face-canvas')
+    );
+    
+    const loginEmail = document.getElementById('login-email').value;
+    const user = userDatabase.find(u => 
+        u.email === loginEmail || u.phone === loginEmail
+    );
+    
+    if (user && compareFaces(user.faceData, loginFaceData)) {
+        currentUser = user;
+        localStorage.setItem('currentUser', JSON.stringify(user));
+        localStorage.setItem('lastLogin', Date.now().toString());
+        showWebsiteContent();
+    } else {
+        document.getElementById('login-face-error').style.display = 'block';
+    }
+}
+
+function captureResetFace() {
+    resetFaceData = captureFace(
+        document.getElementById('reset-face-video'), 
+        document.getElementById('reset-face-canvas')
+    );
+    document.getElementById('reset-face-error').style.display = 'none';
+    document.getElementById('new-password-group').classList.remove('hidden');
+}
+
+// ======================
+// UI FUNCTIONS
+// ======================
+
+function showLoginForm() {
+    document.getElementById('registration-form').classList.add('hidden');
+    document.getElementById('login-form').classList.remove('hidden');
+    document.getElementById('forgot-password-form').classList.add('hidden');
+    document.getElementById('website-content').classList.add('hidden');
+    
+    // Clear form
+    document.getElementById('login-email').value = '';
+    document.getElementById('login-password').value = '';
+    document.getElementById('login-passkey').value = '';
+    document.getElementById('passkey-group').classList.add('hidden');
+    document.getElementById('login-face-scanner').classList.add('hidden');
+}
+
+function showRegistrationForm() {
+    document.getElementById('login-form').classList.add('hidden');
+    document.getElementById('registration-form').classList.remove('hidden');
+    document.getElementById('forgot-password-form').classList.add('hidden');
+    document.getElementById('website-content').classList.add('hidden');
+    
+    // Clear form
+    document.getElementById('reg-name').value = '';
+    document.getElementById('reg-email').value = '';
+    document.getElementById('reg-phone').value = '';
+    document.getElementById('reg-password').value = '';
+    document.getElementById('reg-confirm-password').value = '';
+    document.getElementById('reg-birthday').value = '';
+    document.getElementById('recaptcha-check').checked = false;
+    faceData = null;
+    document.getElementById('face-success').style.display = 'none';
+}
+
+function showForgotPasswordForm() {
+    document.getElementById('login-form').classList.add('hidden');
+    document.getElementById('registration-form').classList.add('hidden');
+    document.getElementById('forgot-password-form').classList.remove('hidden');
+    document.getElementById('website-content').classList.add('hidden');
+    
+    // Clear form
+    document.getElementById('reset-email').value = '';
+    document.getElementById('new-password').value = '';
+    document.getElementById('confirm-new-password').value = '';
+    resetFaceData = null;
+    document.getElementById('reset-face-error').style.display = 'none';
+    document.getElementById('new-password-group').classList.add('hidden');
+    document.getElementById('reset-success').classList.add('hidden');
+}
+
+function showWebsiteContent() {
+    document.getElementById('registration-form').classList.add('hidden');
+    document.getElementById('login-form').classList.add('hidden');
+    document.getElementById('forgot-password-form').classList.add('hidden');
+    document.getElementById('website-content').classList.remove('hidden');
+    
+    // Update welcome message
+    if (currentUser && currentUser.name) {
+        document.querySelector('#website-content h2').textContent = 
+            `Welcome, ${currentUser.name.split(' ')[0]}!`;
+    }
+}
+
+function logoutUser() {
+    currentUser = null;
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('lastLogin');
+    showLoginForm();
+}
+
+// ======================
+// SECURITY FUNCTIONS
+// ======================
+
+function hasFaceRecognition() {
+    // Check if device has camera capabilities
+    return navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
+}
+
+function sendPasskey(user) {
+    // Generate random 6-digit passkey
+    passkey = Math.floor(100000 + Math.random() * 900000).toString();
+    passkeyExpiry = Date.now() + 15 * 60 * 1000; // 15 minutes expiry
+    
+    // In a real app, send this via email/SMS
+    console.log(`Passkey for ${user.email}: ${passkey}`);
+    alert(`A passkey has been sent to your registered contact method.`);
+}
+
+function verifyPasskey() {
+    const enteredPasskey = document.getElementById('login-passkey').value;
+    
+    if (!passkey || Date.now() > passkeyExpiry) {
+        document.getElementById('passkey-error').textContent = 'Passkey expired. Please request a new one.';
+        document.getElementById('passkey-error').style.display = 'block';
+        return;
+    }
+    
+    if (enteredPasskey === passkey) {
+        const loginEmail = document.getElementById('login-email').value;
+        const user = userDatabase.find(u => 
+            u.email === loginEmail || u.phone === loginEmail
+        );
+        
+        if (user) {
+            currentUser = user;
+            localStorage.setItem('currentUser', JSON.stringify(user));
+            localStorage.setItem('lastLogin', Date.now().toString());
+            showWebsiteContent();
+        }
+    } else {
+        document.getElementById('passkey-error').textContent = 'Invalid passkey';
+        document.getElementById('passkey-error').style.display = 'block';
+    }
+}
+
+// ======================
+// INITIALIZATION FUNCTIONS
+// ======================
+
+function startRegistrationFaceScanner() {
+    startFaceScanner(document.getElementById('face-video'));
+}
+
+function startLoginFaceScanner() {
+    if (!document.getElementById('login-face-scanner').classList.contains('hidden')) {
+        startFaceScanner(document.getElementById('login-face-video'));
+    }
+}
+
+function startResetFaceScanner() {
+    startFaceScanner(document.getElementById('reset-face-video'));
+}
+
+// Auto-logout after 1 month of inactivity
+setInterval(() => {
+    if (currentUser) {
+        const lastLogin = localStorage.getItem('lastLogin');
+        const oneMonthAgo = Date.now() - (30 * 24 * 60 * 60 * 1000);
+        
+        if (lastLogin && parseInt(lastLogin) < oneMonthAgo) {
+            alert('Your session has expired due to inactivity.');
+            logoutUser();
+        }
+    }
+}, 86400000); 
+</script>
+</body>
+</html>
